@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f6f8;
+            color: #333;
+        }
+
+        h1 {
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            padding: 12px;
+            width: 80%;
+            max-width: 400px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #4caf50;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #result.positive {
+            color: #4caf50;
+        }
+
+        #result.negative {
+            color: #f44336;
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 14px;
+            color: #777;
+        }
+
+        footer a {
+            color: #4caf50;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Sentiment Analysis</h1>
+    <p>Enter a sentence to analyze its sentiment:</p>
+    <input type="text" id="userInput" placeholder="Type your sentence here..." />
+    <button onclick="analyzeSentiment()">Analyze Sentiment</button>
+    <div id="result"></div>
+
+    <footer>
+        Built with ❤️ by <a href="#">snsupratim</a>
+    </footer>
+
+    <script>
+        async function analyzeSentiment() {
+            const inputText = document.getElementById("userInput").value;
+            const resultDiv = document.getElementById("result");
+
+            if (!inputText) {
+                resultDiv.textContent = "Please enter a sentence!";
+                resultDiv.className = "";
+                return;
+            }
+
+            // Send the input to the Flask API
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: inputText }),
+                });
+
+                if (!response.ok) {
+                    resultDiv.textContent = "Error analyzing sentiment!";
+                    resultDiv.className = "";
+                    return;
+                }
+
+                const data = await response.json();
+                const sentiment = data.sentiment;
+
+                if (sentiment === 'pos') {
+                    resultDiv.textContent = `Sentiment: Positive 😊`;
+                    resultDiv.className = "positive";
+                } else if (sentiment === 'neg') {
+                    resultDiv.textContent = `Sentiment: Negative 😔`;
+                    resultDiv.className = "negative";
+                } else {
+                    resultDiv.textContent = "Sentiment could not be determined.";
+                    resultDiv.className = "";
+                }
+            } catch (error) {
+                resultDiv.textContent = "An error occurred. Please try again.";
+                resultDiv.className = "";
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+
+</html>
